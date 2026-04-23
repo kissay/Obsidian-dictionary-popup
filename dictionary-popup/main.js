@@ -4,17 +4,17 @@ class DictionaryPlugin extends obsidian.Plugin {
   async onload() {
     console.log('Loading Dictionary Popup Plugin');
 
-    // 添加样式
+    // add styles
     this.addStyle();
 
-    // 双击计时器
+    // click time
     this.lastClickTime = 0;
     this.clickCount = 0;
 
-    // 注册双击事件
+    // click event
     this.registerDomEvent(document, 'mousedown', this.handleDoubleClick.bind(this));
 
-    // 注册命令
+    // add command
     this.addCommand({
       id: 'lookup-word',
       name: 'Lookup selected word',
@@ -130,13 +130,13 @@ class DictionaryPlugin extends obsidian.Plugin {
   }
 
   handleDoubleClick(event) {
-    // 只响应左键双击
+    // Only double click
     if (event.button !== 0) return;
 
     const currentTime = new Date().getTime();
     const timeDiff = currentTime - this.lastClickTime;
 
-    // 如果在300ms内点击，则认为是双击
+    // click time <300ms
     if (timeDiff < 300) {
       this.clickCount++;
       if (this.clickCount >= 2) {
@@ -151,13 +151,13 @@ class DictionaryPlugin extends obsidian.Plugin {
   }
 
   async handleWordLookup(event) {
-    // 检查是否点击的是文本
+    // confirm target is text
     if (event.target.nodeType === Node.TEXT_NODE ||
       event.target.matches('.cm-line, .cm-content, .markdown-preview-view, .cm-hmd-embed, .markdown-preview-section')) {
 
       const selection = window.getSelection();
       if (selection.toString().trim() && selection.anchorOffset !== selection.focusOffset) {
-        // 如果有选中文本，使用选中的词
+        // select word
         const selectedWord = selection.toString().trim();
         if (this.isValidWord(selectedWord)) {
           event.preventDefault();
@@ -165,7 +165,7 @@ class DictionaryPlugin extends obsidian.Plugin {
           this.showDictionaryPopup(selectedWord);
         }
       } else {
-        // 尝试获取点击位置的单词
+        // get word at position
         const word = this.getWordAtPosition(event);
         if (word && this.isValidWord(word)) {
           event.preventDefault();
@@ -180,77 +180,77 @@ class DictionaryPlugin extends obsidian.Plugin {
     let target = event.target;
     let text = '';
 
-    // 获取点击位置的文本
+    // get words
     if (target.nodeType === Node.TEXT_NODE) {
       text = target.textContent;
     } else {
       text = target.textContent || '';
     }
 
-    // 简单的单词提取逻辑
+    
     const offset = event.clientX - target.getBoundingClientRect().left;
     const charIndex = Math.floor((offset / target.offsetWidth) * text.length);
 
-    // 找到单词边界
+    
     const leftBound = text.lastIndexOf(' ', charIndex) + 1;
     const rightBound = text.indexOf(' ', charIndex);
     const word = text.substring(leftBound, rightBound === -1 ? text.length : rightBound).trim();
 
-    return word.replace(/[^\w'-]/g, ''); // 移除标点符号
+    return word.replace(/[^\w'-]/g, ''); 
   }
 
   isValidWord(word) {
-    // 简单验证是否为有效单词
+    
     return word && word.length > 1 && /^[a-zA-Z'-]+$/.test(word) && word.length < 30;
   }
 
   async showDictionaryPopup(word) {
-    // 移除已存在的弹窗
+    // remove existing popup
     this.removeExistingPopup();
 
-    // 创建弹窗元素
+    // create popup
     const popup = document.createElement('div');
     popup.className = 'dictionary-popup-modal';
     popup.innerHTML = `
           <div class="dictionary-loader">
-            正在查询 "${word}"...
+            searching "${word}"...
           </div>
         `;
 
-    // 定位弹窗
+    // position
     this.positionPopup(popup, event);
 
     document.body.appendChild(popup);
 
     try {
-      // 获取词典数据
+      // fetch Dictionary Data
       const dictionaryData = await this.fetchDictionaryData(word);
       this.updatePopupContent(popup, word, dictionaryData);
     } catch (error) {
       console.error('Dictionary lookup failed:', error);
       popup.innerHTML = `
             <div class="dictionary-error">
-              查询失败: ${error.message}
+              error: ${error.message}
             </div>
           `;
     }
   }
 
   async fetchDictionaryData(word) {
-    // 使用免费的词典API
+    // API
     const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
 
     if (!response.ok) {
-      throw new Error('未找到该单词');
+      throw new Error('cannot find words');
     }
 
     const data = await response.json();
-    return data[0]; // 返回第一个结果
+    return data[0]; // return data
   }
 
   updatePopupContent(popup, word, data) {
     if (!data) {
-      popup.innerHTML = `<div class="dictionary-error">未找到单词 "${word}"</div>`;
+      popup.innerHTML = `<div class="dictionary-error">cannot find word "${word}"</div>`;
       return;
     }
 
@@ -261,12 +261,12 @@ class DictionaryPlugin extends obsidian.Plugin {
           </div>
         `;
 
-    // 发音
+    
     if (data.phonetic) {
       content += `<div class="dictionary-pronunciation">/${data.phonetic}/</div>`;
     }
 
-    // 释义
+    // definition
     content += `<div class="dictionary-popup-content">`;
     if (data.meanings && data.meanings.length > 0) {
       data.meanings.slice(0, 3).forEach((meaning, index) => {
@@ -282,13 +282,13 @@ class DictionaryPlugin extends obsidian.Plugin {
 
     content += `
             <div class="dictionary-source">
-              来源: <a href="https://en.wiktionary.org/wiki/${word}" target="_blank">Wiktionary</a>
+              source: <a href="https://en.wiktionary.org/wiki/${word}" target="_blank">Wiktionary</a>
             </div>
         `;
 
     popup.innerHTML = content;
 
-    // 点击其他地方关闭弹窗
+    // close
     setTimeout(() => {
       document.addEventListener('click', this.closePopupOnClickOutside.bind(this), { once: true });
     }, 100);
@@ -302,7 +302,7 @@ class DictionaryPlugin extends obsidian.Plugin {
     let left = event.clientX;
     let top = event.clientY + 10;
 
-    // 确保弹窗不会超出视窗边界
+    
     if (left + rect.width > viewportWidth) {
       left = viewportWidth - rect.width - 10;
     }
