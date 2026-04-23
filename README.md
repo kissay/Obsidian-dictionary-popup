@@ -36,7 +36,7 @@ A lightweight plugin for Obsidian that provides **pure English-English definitio
 ```
 .obsidian/
 └── plugins/
-    └── obsidian-word-lookup/
+    └── dictionary-popup
         ├── main.js
         ├── manifest.json
         └── README.md
