@@ -1,0 +1,9 @@
+{
+    "id": "dictionary-popup",
+    "name": "Dictionary Popup",
+    "version": "1.0.0",
+    "description": "Double click and popup the defination of words",
+    "author": "keniskey",
+    "isDesktopOnly": false,
+    "minAppVersion": "0.12.0"
+}
