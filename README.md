@@ -3,6 +3,12 @@ A lightweight plugin for Obsidian that provides **pure English-English definitio
 
 ---
 
+<img width="743" height="336" alt="image" src="https://github.com/user-attachments/assets/ba8cdd5a-bca4-47da-9896-4baefc7e4201" />
+
+
+
+
+
 ## Features
 - 🖱️ **Double-click any word** to instantly show its definition
 - 📖 **English-only explanations** (no Chinese, no mixed translations)
